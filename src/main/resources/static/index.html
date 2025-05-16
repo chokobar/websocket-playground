@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>WebSocket Pilot</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f5aa5;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            justify-content: space-between;
+        }
+
+        .form-group label {
+            width: 60px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 360px;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .form-group button,
+        .btn {
+            width: 100px;
+            padding: 6px 0;
+            background-color: #1f5aa5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .form-group button:hover,
+        .btn:hover {
+            background-color: #17498a;
+        }
+
+        .btn-danger {
+            background-color: #d9534f;
+        }
+
+        .btn-danger:hover {
+            background-color: #c9302c;
+        }
+
+        #chatSection {
+            margin-top: 25px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #chatLog {
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f9f9f9;
+            font-size: 14px;
+        }
+
+        #chatMessage {
+            width: calc(100% - 110px);
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+
+        .chat-send {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>💬 WebSocket Pilot</h1>
+
+    <div class="form-group">
+        <label for="hospitalName">이&nbsp;&nbsp;&nbsp;&nbsp;름</label>
+        <input type="text" id="hospitalName" placeholder="이름 입력" />
+        <button onclick="createGateway()">방 만들기</button>
+    </div>
+
+    <div class="form-group">
+        <label for="hospitalCd">방 코드</label>
+        <input type="text" id="hospitalCd" placeholder="코드 입력" />
+        <button onclick="connectWebSocket()">방 입장</button>
+    </div>
+
+    <div class="form-group">
+        <label style="visibility: hidden;">퇴장</label>
+        <button style="background-color: red; width: 2000px;" class="btn btn-danger" onclick="disconnectWebSocket()">나가기</button>
+    </div>
+
+    <div id="chatSection" style="display:none;">
+        <h3>채팅</h3>
+        <div class="chat-send">
+            <input type="text" id="chatMessage" placeholder="메시지 입력" />
+            <button class="btn" onclick="sendMessage()">전송</button>
+        </div>
+        <div id="chatLog"></div>
+    </div>
+</div>
+
+<script>
+    const today = new Date();
+    const hours = ('0' + today.getHours()).slice(-2);
+    const minutes = ('0' + today.getMinutes()).slice(-2);
+    const seconds = ('0' + today.getSeconds()).slice(-2);
+    const timeString = hours + ':' + minutes + ':' + seconds;
+
+    let socket;
+
+    function createGateway() {
+        const hospitalName = document.getElementById("hospitalName").value;
+        fetch(`/gateway?hospitalName=${hospitalName}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                alert(`방 생성됨! hospitalCd: ${data.hospitalCd}`);
+                document.getElementById("hospitalCd").value = data.hospitalCd;
+            });
+    }
+
+    function connectWebSocket() {
+        const hospitalCd = document.getElementById("hospitalCd").value;
+        const hospitalName = document.getElementById("hospitalName").value;
+
+        socket = new WebSocket("ws://localhost:8080/ws-gateway");
+
+        socket.onopen = () => {
+            const enterMessage = {
+                type: "JOIN",
+                hospitalCd,
+                hospitalName,
+                sender: hospitalName
+            };
+            socket.send(JSON.stringify(enterMessage));
+            document.getElementById("chatSection").style.display = "block";
+        };
+
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            const chatLog = document.getElementById("chatLog");
+            const sender = message.hospitalName || "알 수 없음";
+            const text = JSON.stringify(message.message);
+            chatLog.innerHTML += `<div>💬 <strong>${sender}</strong>: ${text} <span style="font-size: 0.8em; color: gray;">(${timeString})</span></div>`;
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        socket.onclose = () => {
+            console.log("WebSocket 연결 종료");
+        };
+    }
+
+    function sendMessage() {
+        const hospitalCd = document.getElementById("hospitalCd").value;
+        const hospitalName = document.getElementById("hospitalName").value;
+        const chatText = document.getElementById("chatMessage").value;
+
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            alert("WebSocket 연결이 안 되어 있어요!");
+            return;
+        }
+
+        const message = {
+            type: "TALK",
+            hospitalCd,
+            hospitalName,
+            sender: hospitalName,
+            message: chatText
+        };
+        socket.send(JSON.stringify(message));
+        document.getElementById("chatMessage").value = "";
+    }
+
+    function disconnectWebSocket() {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            alert("이미 연결이 종료되었거나 연결이 안 되어 있습니다.");
+            return;
+        }
+
+        const hospitalCd = document.getElementById("hospitalCd").value;
+        const hospitalName = document.getElementById("hospitalName").value;
+
+        const exitMessage = {
+            type: "EXIT",
+            hospitalCd,
+            hospitalName,
+            sender: hospitalName
+        };
+
+        socket.send(JSON.stringify(exitMessage));
+        socket.close();
+        document.getElementById("chatSection").style.display = "none";
+        alert("퇴장하였습니다.");
+    }
+</script>
+</body>
+</html>
