@@ -1,4 +1,4 @@
-# 🔌 Spring Boot WebSocket 병원 클라이언트 프로젝트
+# 🔌 Spring Boot WebSocket 프로젝트
 
 ## 📖 개요  
 Spring Boot 기반으로 개발한 WebSocket 클라이언트 연습 프로젝트입니다.  
