@@ -12,7 +12,7 @@ Spring Boot 기반으로 개발한 WebSocket 클라이언트 연습 프로젝트
 - Java 17  
 - Spring Boot 3.4  
 - Spring WebSocket  
-- Spring Web (RestTemplate)  
+- Spring Web  
 - Lombok  
 - Gradle  
 
