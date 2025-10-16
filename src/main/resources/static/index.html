@@ -151,7 +151,7 @@
         fetch(`/gateway?hospitalName=${hospitalName}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
-                alert(`방 생성됨! hospitalCd: ${data.hospitalCd}`);
+                alert(`방 생성됨! 방입장 코드 : ${data.hospitalCd}`);
                 document.getElementById("hospitalCd").value = data.hospitalCd;
             });
     }

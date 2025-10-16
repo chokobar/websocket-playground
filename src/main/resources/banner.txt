@@ -1,0 +1,12 @@
+████████████████████████████████████████████████████
+█░░░░░░░░░░░░░  WebSocket-PlayGround  ░░░░░░░░░░░░░█
+████████████████████████████████████████████████████
+█                                                  █
+█        Welcome to WebSocket-PlayGround           █
+█                                                  █
+█  Spring Boot Version: ${spring-boot.version}                      █
+█  Java Version       : ${java.version}                    █
+█  OS                 : ${os.name} (${os.version})          █
+█                                                  █
+█                         Developed by: chokobar   █
+████████████████████████████████████████████████████
