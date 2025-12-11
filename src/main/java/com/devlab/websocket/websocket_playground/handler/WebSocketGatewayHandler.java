@@ -1,8 +1,8 @@
 package com.devlab.websocket.websocket_playground.handler;
 
-import com.devlab.websocket.websocket_playground.dto.HospitalGatewayData;
-import com.devlab.websocket.websocket_playground.dto.HospitalGatewayId;
-import com.devlab.websocket.websocket_playground.service.HospitalGatewayService;
+import com.devlab.websocket.websocket_playground.dto.SocketGatewayData;
+import com.devlab.websocket.websocket_playground.dto.SocketGatewayId;
+import com.devlab.websocket.websocket_playground.service.SocketGatewayService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @RequiredArgsConstructor
 public class WebSocketGatewayHandler extends TextWebSocketHandler {
     //TextWebSocketHandler JSON 문자열 전송 가능
-    private final HospitalGatewayService hospitalGatewayService;
+    private final SocketGatewayService socketGatewayService;
 
     //JSON 데이터를 Java 객체로 변환하거나, Java 객체를 JSON 문자열 직렬화/역직렬화
     private final ObjectMapper objectMapper;
@@ -32,15 +32,15 @@ public class WebSocketGatewayHandler extends TextWebSocketHandler {
         log.info("payload={}", payload);
 
         //objectMapper.readValue는 payload에서 받은 문자열을 java객체로 변환
-        HospitalGatewayData hospitalData = objectMapper.readValue(payload, HospitalGatewayData.class);
-        HospitalGatewayId gatewayId = hospitalGatewayService.findGatewayId(hospitalData.getHospitalCd());
+        SocketGatewayData socketData = objectMapper.readValue(payload, SocketGatewayData.class);
+        SocketGatewayId gatewayId = socketGatewayService.findGatewayId(socketData.getSocketCd());
 
         //gatewayId가 일치하지 않으면 해당 로직
         if (gatewayId == null) {
-            log.error("Gateway ID를 찾을 수 없습니다. 병원코드: {}", hospitalData.getHospitalCd());
+            log.error("Gateway ID를 찾을 수 없습니다. 병원코드: {}", socketData.getSocketCd());
             return;
         }
 
-        gatewayId.handleActions(session, hospitalData, hospitalGatewayService);
+        gatewayId.handleActions(session, socketData, socketGatewayService);
     }
 }
