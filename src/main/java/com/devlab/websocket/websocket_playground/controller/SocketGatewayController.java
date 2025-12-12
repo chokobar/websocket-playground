@@ -1,7 +1,7 @@
 package com.devlab.websocket.websocket_playground.controller;
 
-import com.devlab.websocket.websocket_playground.dto.HospitalGatewayId;
-import com.devlab.websocket.websocket_playground.service.HospitalGatewayService;
+import com.devlab.websocket.websocket_playground.dto.SocketGatewayId;
+import com.devlab.websocket.websocket_playground.service.SocketGatewayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/gateway")
-public class HospitalGatewayController {
+public class SocketGatewayController {
 
-    private final HospitalGatewayService hospitalGatewayService;
+    private final SocketGatewayService socketGatewayService;
 
     @PostMapping
-    public HospitalGatewayId creatGateway(@RequestParam String hospitalName) {
-        log.info("==HospitalGatewayController creatGateway==");
-        return hospitalGatewayService.creatGateway(hospitalName);
+    public SocketGatewayId creatGateway(@RequestParam String socketName) {
+        log.info("==SocketGatewayController creatGateway==");
+        return socketGatewayService.creatGateway(socketName);
     }
 
 }
