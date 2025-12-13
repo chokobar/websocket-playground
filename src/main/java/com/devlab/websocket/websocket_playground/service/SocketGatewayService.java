@@ -1,6 +1,6 @@
 package com.devlab.websocket.websocket_playground.service;
 
-import com.devlab.websocket.websocket_playground.dto.HospitalGatewayId;
+import com.devlab.websocket.websocket_playground.dto.SocketGatewayId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -17,38 +17,38 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HospitalGatewayService {
+public class SocketGatewayService {
 
     //JSON 데이터를 Java 객체로 변환하거나, Java 객체를 JSON 문자열 직렬화/역직렬화
     private final ObjectMapper objectMapper;
 
-    private Map<String, HospitalGatewayId> hospitalGatewayIds;
+    private Map<String, SocketGatewayId> socketGatewayIds;
 
     @PostConstruct
     private void init() {
-        hospitalGatewayIds = new LinkedHashMap<>();
+        socketGatewayIds = new LinkedHashMap<>();
     }
 
-    public HospitalGatewayId findGatewayId(String hospitalCd) {
-        log.info("==HospitalGatewayService findGatewayId==");
-        return hospitalGatewayIds.get(hospitalCd);
+    public SocketGatewayId findGatewayId(String socketCd) {
+        log.info("==SocketGatewayService findGatewayId==");
+        return socketGatewayIds.get(socketCd);
     }
 
-    public HospitalGatewayId creatGateway(String hospitalName) {
-        log.info("==HospitalGatewayService createGateway==");
+    public SocketGatewayId creatGateway(String socketName) {
+        log.info("==SocketGatewayService createGateway==");
         //중복되지 않는 값 생성
         String gatewayId = UUID.randomUUID().toString();
-        //중복되지 않는 값을가지고 hospitalGatewayId 생성
-        HospitalGatewayId hospitalGatewayId = HospitalGatewayId.builder()
-                .hospitalCd(gatewayId)
-                .hospitalName(hospitalName)
+        //중복되지 않는 값을가지고 socketGatewayId 생성
+        SocketGatewayId socketGatewayId = SocketGatewayId.builder()
+                .socketCd(gatewayId)
+                .socketName(socketName)
                 .build();
-        hospitalGatewayIds.put(gatewayId, hospitalGatewayId);
-        return hospitalGatewayId;
+        socketGatewayIds.put(gatewayId, socketGatewayId);
+        return socketGatewayId;
     }
 
     public <T> void sendData(WebSocketSession session, T message) {
-        log.info("==HospitalGatewayService sendData==");
+        log.info("==SocketGatewayService sendData==");
         try {
             //message 객체를 JSON 형식으로 변환하여 클라이언트에게 전송
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
