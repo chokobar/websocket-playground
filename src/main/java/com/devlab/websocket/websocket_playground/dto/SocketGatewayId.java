@@ -25,22 +25,34 @@ public class SocketGatewayId {
         this.socketName = socketName;
     }
 
-    public void handleActions(
-            WebSocketSession session, SocketGatewayData gatewayData, SocketGatewayService socketGatewayService) {
-        //WebSocketSession은 WebSocket 연결을 관리하는 객체
-        log.info("=====================SocketGatewayId handleActions=====================");
-        if (gatewayData.getType().equals(SocketGatewayData.MessageType.CONNECT)) {
+    public void handleActions(WebSocketSession session, SocketGatewayData gatewayData,
+                              SocketGatewayService socketGatewayService) {
+
+        log.info("handleActions type={}, socketCd={}, socketName={}, message={}",
+                gatewayData.getType(), gatewayData.getSocketCd(), gatewayData.getSocketName(),
+                gatewayData.getMessage());
+
+        if (gatewayData.getType() == SocketGatewayData.MessageType.FIRST_CONNECT) {
             sessions.add(session);
             log.info("add session={}", session);
-            gatewayData.setMessage((gatewayData.getSocketName() + "님이 입장하였습니다."));
-        } else if (gatewayData.getType().equals(SocketGatewayData.MessageType.EXIT)) {
+            gatewayData.setMessage(gatewayData.getSocketName() + "님이 입장하였습니다.");
+            sendData(gatewayData, socketGatewayService);
+            return;
+        }
+
+        if (gatewayData.getType() == SocketGatewayData.MessageType.CONNECTING) {
+            sendData(gatewayData, socketGatewayService);
+            return;
+        }
+
+        if (gatewayData.getType() == SocketGatewayData.MessageType.EXIT) {
             sessions.remove(session);
             log.info("remove session={}", session);
-            gatewayData.setMessage((gatewayData.getSocketName() + "님이 퇴장하였습니다."));
+            gatewayData.setMessage(gatewayData.getSocketName() + "님이 퇴장하였습니다.");
+            sendData(gatewayData, socketGatewayService);
         }
-        log.info("gatewayData={}", gatewayData);
-        sendData(gatewayData , socketGatewayService);
     }
+
 
     public <T> void sendData(T message, SocketGatewayService socketGatewayService) {
         log.info("=====================SocketGatewayId sendMessage=====================");
