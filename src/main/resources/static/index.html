@@ -111,14 +111,14 @@
     <h1>💬 WebSocket Pilot</h1>
 
     <div class="form-group">
-        <label for="hospitalName">이&nbsp;&nbsp;&nbsp;&nbsp;름</label>
-        <input type="text" id="hospitalName" placeholder="이름 입력" />
+        <label for="socketName">이&nbsp;&nbsp;&nbsp;&nbsp;름</label>
+        <input type="text" id="socketName" placeholder="이름 입력" />
         <button onclick="createGateway()">방 만들기</button>
     </div>
 
     <div class="form-group">
-        <label for="hospitalCd">방 코드</label>
-        <input type="text" id="hospitalCd" placeholder="코드 입력" />
+        <label for="socketCd">방 코드</label>
+        <input type="text" id="socketCd" placeholder="코드 입력" />
         <button onclick="connectWebSocket()">방 입장</button>
     </div>
 
@@ -147,27 +147,27 @@
     let socket;
 
     function createGateway() {
-        const hospitalName = document.getElementById("hospitalName").value;
-        fetch(`/gateway?hospitalName=${hospitalName}`, { method: 'POST' })
+        const socketName = document.getElementById("socketName").value;
+        fetch(`/gateway?socketName=${socketName}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
-                alert(`방 생성됨! 방입장 코드 : ${data.hospitalCd}`);
-                document.getElementById("hospitalCd").value = data.hospitalCd;
+                alert(`방 생성됨! 방입장 코드 : ${data.socketCd}`);
+                document.getElementById("socketCd").value = data.socketCd;
             });
     }
 
     function connectWebSocket() {
-        const hospitalCd = document.getElementById("hospitalCd").value;
-        const hospitalName = document.getElementById("hospitalName").value;
+        const socketCd = document.getElementById("socketCd").value;
+        const socketName = document.getElementById("socketName").value;
 
         socket = new WebSocket("ws://localhost:8080/ws-gateway");
 
         socket.onopen = () => {
             const enterMessage = {
-                type: "JOIN",
-                hospitalCd,
-                hospitalName,
-                sender: hospitalName
+                type: "FIRST_CONNECT",
+                socketCd,
+                socketName,
+                sender: socketName
             };
             socket.send(JSON.stringify(enterMessage));
             document.getElementById("chatSection").style.display = "block";
@@ -176,7 +176,7 @@
         socket.onmessage = (event) => {
             const message = JSON.parse(event.data);
             const chatLog = document.getElementById("chatLog");
-            const sender = message.hospitalName || "알 수 없음";
+            const sender = message.socketName || "알 수 없음";
             const text = JSON.stringify(message.message);
             chatLog.innerHTML += `<div>💬 <strong>${sender}</strong>: ${text} <span style="font-size: 0.8em; color: gray;">(${timeString})</span></div>`;
             chatLog.scrollTop = chatLog.scrollHeight;
@@ -188,8 +188,8 @@
     }
 
     function sendMessage() {
-        const hospitalCd = document.getElementById("hospitalCd").value;
-        const hospitalName = document.getElementById("hospitalName").value;
+        const socketCd = document.getElementById("socketCd").value;
+        const socketName = document.getElementById("socketName").value;
         const chatText = document.getElementById("chatMessage").value;
 
         if (!socket || socket.readyState !== WebSocket.OPEN) {
@@ -198,10 +198,10 @@
         }
 
         const message = {
-            type: "TALK",
-            hospitalCd,
-            hospitalName,
-            sender: hospitalName,
+            type: "CONNECTING",
+            socketCd,
+            socketName,
+            sender: socketName,
             message: chatText
         };
         socket.send(JSON.stringify(message));
@@ -214,14 +214,14 @@
             return;
         }
 
-        const hospitalCd = document.getElementById("hospitalCd").value;
-        const hospitalName = document.getElementById("hospitalName").value;
+        const socketCd = document.getElementById("socketCd").value;
+        const socketName = document.getElementById("socketName").value;
 
         const exitMessage = {
             type: "EXIT",
-            hospitalCd,
-            hospitalName,
-            sender: hospitalName
+            socketCd,
+            socketName,
+            sender: socketName
         };
 
         socket.send(JSON.stringify(exitMessage));
