@@ -53,7 +53,6 @@ public class SocketGatewayId {
         }
     }
 
-
     public <T> void sendData(T message, SocketGatewayService socketGatewayService) {
         log.info("=====================SocketGatewayId sendMessage=====================");
         log.info("message={}", message);
