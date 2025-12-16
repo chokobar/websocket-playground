@@ -37,7 +37,7 @@ public class WebSocketGatewayHandler extends TextWebSocketHandler {
 
         //gatewayId가 일치하지 않으면 해당 로직
         if (gatewayId == null) {
-            log.error("Gateway ID를 찾을 수 없습니다. 병원코드: {}", socketData.getSocketCd());
+            log.error("Gateway ID를 찾을 수 없습니다. 소켓코드: {}", socketData.getSocketCd());
             return;
         }
 
