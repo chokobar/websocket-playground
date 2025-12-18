@@ -19,7 +19,9 @@ public class SocketGatewayController {
 
     @PostMapping
     public SocketGatewayId creatGateway(@RequestParam String socketName) {
+
         log.info("==SocketGatewayController creatGateway==");
+
         return socketGatewayService.creatGateway(socketName);
     }
 
